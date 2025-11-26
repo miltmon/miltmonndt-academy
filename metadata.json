@@ -1,0 +1,9 @@
+{
+  "name": "MiltmonNDT Academy",
+  "description": "MiltmonNDT Academy is a learning environment for welders and inspectors built on rigor and mentorship, focusing on code literacy, inspection science, and professional judgment.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}
