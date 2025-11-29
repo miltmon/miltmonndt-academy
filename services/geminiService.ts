@@ -2,6 +2,9 @@ import { z } from 'zod';
 import { GoogleGenAI, Type, Modality, Chat } from "@google/genai";
 import type { GenerateContentResponse, GroundingChunk } from "@google/genai";
 
+// Get API key from Vite environment variables
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
+
 // Schemas
 const geminiExplainResponseSchema = z.object({
   simplified: z.string(),
@@ -64,7 +67,8 @@ export const encode = (bytes: Uint8Array) => {
 
 // Existing Functions
 export async function explainClause(question: string): Promise<GeminiExplainResponse> {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  if (!API_KEY) throw new Error('Gemini API key is not configured');
+  const ai = new GoogleGenAI({ apiKey: API_KEY });
   const systemInstruction = `You are an expert Certified Welding Inspector (CWI) and a patient mentor at the MiltmonNDT Academy. Your goal is to make complex welding codes and standards (like AWS D1.1, ASME Section IX, API 1104) easy to understand for aspiring inspectors. When a student asks you about a code clause, a term, or a scenario, respond with a JSON object containing three fields: 'simplified', 'practical', and 'takeaway'. 'simplified': Break down the technical language into simple, direct terms. 'practical': Describe a real-world scenario where this clause would be important. 'takeaway': Provide a one-sentence "rule of thumb" or a simple analogy.`;
   
   try {
@@ -101,7 +105,8 @@ export async function explainClause(question: string): Promise<GeminiExplainResp
 }
 
 export const generateBio = async (keywords: string, role: string): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  if (!API_KEY) throw new Error('Gemini API key is not configured');
+  const ai = new GoogleGenAI({ apiKey: API_KEY });
   const systemInstruction = `You are an expert career coach specializing in the welding and inspection industry. Generate a professional, compelling, and concise bio (around 200 characters). The tone should be confident and forward-looking. Output only the bio text.`;
   const prompt = `Role: "${role}"\nKeywords: "${keywords}"`;
 
@@ -126,7 +131,8 @@ export const generateBio = async (keywords: string, role: string): Promise<strin
 // New AI Functions
 let chat: Chat | null = null;
 export const startChat = () => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  if (!API_KEY) throw new Error('Gemini API key is not configured');
+  const ai = new GoogleGenAI({ apiKey: API_KEY });
   chat = ai.chats.create({
     model: 'gemini-2.5-flash',
     config: {
@@ -147,7 +153,8 @@ export const sendMessage = async (message: string): Promise<GenerateContentRespo
 
 
 export const generateImage = async (prompt: string, aspectRatio: string) => {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    if (!API_KEY) throw new Error('Gemini API key is not configured');
+    const ai = new GoogleGenAI({ apiKey: API_KEY });
     const response = await ai.models.generateImages({
         model: 'imagen-4.0-generate-001',
         prompt,
@@ -161,7 +168,8 @@ export const generateImage = async (prompt: string, aspectRatio: string) => {
 };
 
 export const editImage = async (image: {inlineData: {data:string, mimeType: string}}, prompt: string) => {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    if (!API_KEY) throw new Error('Gemini API key is not configured');
+    const ai = new GoogleGenAI({ apiKey: API_KEY });
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash-image',
         contents: { parts: [ image, { text: prompt } ] },
@@ -175,7 +183,8 @@ export const editImage = async (image: {inlineData: {data:string, mimeType: stri
 };
 
 export const analyzeMedia = async (media: {inlineData: {data:string, mimeType: string}}, prompt: string, model: 'gemini-2.5-flash' | 'gemini-3-pro-image-preview' = 'gemini-2.5-flash') => {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    if (!API_KEY) throw new Error('Gemini API key is not configured');
+    const ai = new GoogleGenAI({ apiKey: API_KEY });
     const response = await ai.models.generateContent({
         model,
         contents: { parts: [ media, { text: prompt } ] },
@@ -184,7 +193,8 @@ export const analyzeMedia = async (media: {inlineData: {data:string, mimeType: s
 };
 
 export const transcribeAudio = async (audio: {inlineData: {data:string, mimeType: string}}) => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  if (!API_KEY) throw new Error('Gemini API key is not configured');
+  const ai = new GoogleGenAI({ apiKey: API_KEY });
   const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: { parts: [ audio, { text: "Transcribe this audio." } ] },
@@ -193,7 +203,8 @@ export const transcribeAudio = async (audio: {inlineData: {data:string, mimeType
 }
 
 export const groundedSearch = async (prompt: string, useMaps: boolean, location?: {latitude: number, longitude: number}) => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  if (!API_KEY) throw new Error('Gemini API key is not configured');
+  const ai = new GoogleGenAI({ apiKey: API_KEY });
   const tools: any[] = [{googleSearch: {}}];
   const toolConfig: any = {};
 
@@ -217,7 +228,8 @@ export const groundedSearch = async (prompt: string, useMaps: boolean, location?
 };
 
 export const complexQuery = async (prompt: string) => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  if (!API_KEY) throw new Error('Gemini API key is not configured');
+  const ai = new GoogleGenAI({ apiKey: API_KEY });
   const response = await ai.models.generateContent({
       model: 'gemini-3-pro-preview',
       contents: prompt,
@@ -230,7 +242,8 @@ export const complexQuery = async (prompt: string) => {
 };
 
 export const textToSpeech = async (text: string) => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  if (!API_KEY) throw new Error('Gemini API key is not configured');
+  const ai = new GoogleGenAI({ apiKey: API_KEY });
   const response = await ai.models.generateContent({
     model: "gemini-2.5-flash-preview-tts",
     contents: [{ parts: [{ text }] }],
@@ -247,7 +260,8 @@ export const textToSpeech = async (text: string) => {
 }
 
 export const generateVideo = async (prompt: string, aspectRatio: '16:9' | '9:16') => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  if (!API_KEY) throw new Error('Gemini API key is not configured');
+  const ai = new GoogleGenAI({ apiKey: API_KEY });
   let operation = await ai.models.generateVideos({
     model: 'veo-3.1-fast-generate-preview',
     prompt,
@@ -265,7 +279,7 @@ export const generateVideo = async (prompt: string, aspectRatio: '16:9' | '9:16'
 
   const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
   if (downloadLink) {
-    const response = await fetch(`${downloadLink}&key=${process.env.API_KEY}`);
+    const response = await fetch(`${downloadLink}&key=${API_KEY}`);
     const blob = await response.blob();
     return URL.createObjectURL(blob);
   }
