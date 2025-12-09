@@ -11,11 +11,7 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/onboarding" element={<Onboarding user={{ id: 'placeholder' }} />} />
-        <Route path="/onboarding/role" element={<Onboarding user={{ id: 'placeholder' }} />} />
-        <Route path="/onboarding/profile" element={<Onboarding user={{ id: 'placeholder' }} />} />
-        <Route path="/onboarding/skills" element={<Onboarding user={{ id: 'placeholder' }} />} />
-        <Route path="/onboarding/complete" element={<Onboarding user={{ id: 'placeholder' }} />} />
+        <Route path="/onboarding/*" element={<Onboarding />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="*" element={<Navigate to='/' />} />
       </Routes>
