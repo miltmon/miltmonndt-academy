@@ -1,31 +1,42 @@
-import React, { useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseAnon);
+const ProfileForm: React.FC = () => {
+  const navigate = useNavigate();
+  const [profile, setProfile] = useState<{firstName?:string; lastName?:string; phone?:string}>({});
+  const [loading, setLoading] = useState(false);
 
-export default function ProfileForm({ userId, onSaved }: { userId: string; onSaved?: () => void }) {
-  const [fullName, setFullName] = useState('');
-  const [company, setCompany] = useState('');
-  const [experience, setExperience] = useState('');
+  useEffect(() => {
+    // pre-fill from session if available
+    const cached = sessionStorage.getItem("onboarding_profile");
+    if (cached) setProfile(JSON.parse(cached));
+  }, []);
 
-  const save = async () => {
-    await supabase.from('users').update({
-      full_name: fullName,
-      company,
-      experience_level: experience
-    }).eq('id', userId);
-    onSaved && onSaved();
-  };
+  async function saveAndNext() {
+    setLoading(true);
+    sessionStorage.setItem("onboarding_profile", JSON.stringify(profile));
+    navigate("/onboarding/skills");
+    setLoading(false);
+  }
 
   return (
-    <div className="profile-form">
-      <h2>Profile</h2>
-      <label>Full name<input value={fullName} onChange={e=>setFullName(e.target.value)} /></label>
-      <label>Company<input value={company} onChange={e=>setCompany(e.target.value)} /></label>
-      <label>Years experience<input value={experience} onChange={e=>setExperience(e.target.value)} /></label>
-      <button onClick={save}>Save & Continue</button>
-    </div>
+    <form onSubmit={(e) => { e.preventDefault(); saveAndNext(); }}>
+      <h2>Your profile</h2>
+      <label>First name
+        <input value={profile.firstName || ""} onChange={e => setProfile({...profile, firstName: e.target.value})}/>
+      </label>
+      <label>Last name
+        <input value={profile.lastName || ""} onChange={e => setProfile({...profile, lastName: e.target.value})}/>
+      </label>
+      <label>Phone
+        <input value={profile.phone || ""} onChange={e => setProfile({...profile, phone: e.target.value})}/>
+      </label>
+      <div>
+        <button type="submit" disabled={loading}>Next: Skills</button>
+      </div>
+    </form>
   );
-}
+};
+
+export default ProfileForm;
